@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Contact Submissions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --card-hover: #222240;
+            --accent: #6c63ff;
+            --accent-light: #8b83ff;
+            --accent-glow: rgba(108, 99, 255, 0.15);
+            --text: #e8e8f0;
+            --text-muted: #8888a0;
+            --border: #2a2a45;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #6c63ff 0%, #e040fb 100%);
+            --gradient-2: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            --gradient-3: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(224, 64, 251, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(0, 210, 255, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(5%, 5%); }
+            66% { transform: translate(-5%, -5%); }
+        }
+
+        /* Nav */
+        .nav {
+            background: rgba(15, 15, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .nav-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent);
+            background: var(--card-hover);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background: var(--accent-light);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue { background: rgba(0, 210, 255, 0.15); color: #00d2ff; }
+        .stat-icon.purple { background: rgba(108, 99, 255, 0.15); color: var(--accent); }
+        .stat-icon.green { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .stat-icon.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-refresh {
+            padding: 0.8rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            border-color: var(--accent);
+            background: var(--card-hover);
+        }
+
+        .btn-refresh.spinning i {
+            animation: spin 0.8s linear;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Submissions Grid */
+        .submissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .submission-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .submission-card:hover::before {
+            opacity: 1;
+        }
+
+        .submission-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .card-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .card-body h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-body .subject {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-body .message {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .card-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        .card-tag i {
+            font-size: 0.7rem;
+        }
+
+        .card-tag.email { background: rgba(0, 210, 255, 0.1); color: #00d2ff; }
+        .card-tag.phone { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .card-action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .card-action-btn.view {
+            background: rgba(108, 99, 255, 0.15);
+            color: var(--accent);
+        }
+
+        .card-action-btn.view:hover {
+            background: rgba(108, 99, 255, 0.25);
+        }
+
+        .card-action-btn.delete {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .card-action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .modal-header-info h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .modal-header-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .modal-detail {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-detail:last-of-type {
+            border-bottom: none;
+        }
+
+        .modal-detail i {
+            width: 20px;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        .modal-detail .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .modal-detail .value {
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        /* Loading & Error */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            grid-column: 1 / -1;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: var(--accent);
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading p {
+            margin-top: 1rem;
+            color: var(--text-muted);
+        }
+
+        .error-msg {
+            text-align: center;
+            padding: 4rem;
+            grid-column: 1 / -1;
+            color: var(--danger);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.success i { color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.error i { color: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 0 1rem 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .submissions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .modal {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Login */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            animation: modalIn 0.3s ease;
+        }
+
+        .login-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <i class="fas fa-chart-bar"></i>
+            <span>Contact Dashboard</span>
+        </div>
+        <div class="nav-actions">
+            <a href="/" class="nav-btn"><i class="fas fa-arrow-left"></i> Portfolio</a>
+            <button class="nav-btn primary" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+    </nav>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-envelope"></i></div>
+            <div class="stat-info">
+                <h3 id="totalCount">0</h3>
+                <p>Total Messages</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3 id="uniqueSenders">0</h3>
+                <p>Unique Senders</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <h3 id="todayCount">0</h3>
+                <p>Today</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-calendar-week"></i></div>
+            <div class="stat-info">
+                <h3 id="weekCount">0</h3>
+                <p>This Week</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-icon"><i class="fas fa-lock"></i></div>
+            <h2>Admin Login</h2>
+            <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:0.9rem;">Enter your credentials to access the dashboard</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fas fa-key"></i> Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <div id="loginError" class="login-error"></div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent" style="display:none;">
+        <!-- Filters -->
+        <div class="filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name, email, subject..." oninput="filterSubmissions()">
+            </div>
+            <select class="filter-select" id="sortSelect" onchange="filterSubmissions()">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+            <button class="btn-refresh" onclick="logout()" title="Logout" style="color:var(--danger);border-color:var(--danger);">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Submissions Grid -->
+        <div class="submissions-grid" id="submissionsGrid">
+            <div class="loading">
+                <i class="fas fa-circle-notch"></i>
+                <p>Loading submissions...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <div class="modal-avatar" id="modalAvatar">MT</div>
+                <div class="modal-header-info">
+                    <h2 id="modalName">Name</h2>
+                    <p id="modalTime">Received a moment ago</p>
+                </div>
+            </div>
+            <div class="modal-detail">
+                <i class="fas fa-envelope"></i>
+                <div>
+                    <div class="label">Email</div>
+                    <div class="value" id="modalEmail">-</div>
+                </div>
+            </div>
+            <div class="modal-detail">
+                <i class="fas fa-phone"></i>
+                <div>
+                    <div class="label">Phone</div>
+                    <div class="value" id="modalPhone">-</div>
+                </div>
+            </div>
+            <div class="modal-detail">
+                <i class="fas fa-tag"></i>
+                <div>
+                    <div class="label">Subject</div>
+                    <div class="value" id="modalSubject">-</div>
+                </div>
+            </div>
+            <div class="modal-detail" style="border-bottom: none;">
+                <i class="fas fa-comment"></i>
+                <div style="flex:1">
+                    <div class="label">Message</div>
+                    <div class="value" id="modalMessage" style="line-height:1.6;margin-top:0.3rem;">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">Success!</span>
+    </div>
+
+    <script>
+        let allSubmissions = [];
+        let authToken = sessionStorage.getItem('dashboardToken');
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
+
+            errorEl.classList.remove('show');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.token) {
+                    sessionStorage.setItem('dashboardToken', data.token);
+                    authToken = data.token;
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    fetchSubmissions();
+                } else {
+                    errorEl.textContent = data.error || 'Invalid credentials';
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Connection error. Is the server running?';
+                errorEl.classList.add('show');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('dashboardToken');
+            authToken = null;
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        // Check auth on load
+        if (authToken) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        async function fetchSubmissions() {
+            try {
+                const res = await fetch('/submissions', {
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
+                if (!res.ok) throw new Error('Failed to fetch');
+                allSubmissions = await res.json();
+                updateStats();
+                renderSubmissions();
+            } catch (err) {
+                document.getElementById('submissionsGrid').innerHTML = `
+                    <div class="error-msg">
+                        <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:1rem;display:block;"></i>
+                        <p>Could not load submissions. Make sure the server is running.</p>
+                        <p style="font-size:0.85rem;margin-top:0.5rem;color:var(--text-muted);">${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const total = allSubmissions.length;
+            document.getElementById('totalCount').textContent = total;
+
+            const uniqueEmails = new Set(allSubmissions.map(s => s.email));
+            document.getElementById('uniqueSenders').textContent = uniqueEmails.size;
+
+            const now = new Date();
+            const today = now.toDateString();
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - now.getDay());
+
+            const todayCount = allSubmissions.filter(s => {
+                const d = new Date(s.receivedAt || s.timestamp);
+                return d.toDateString() === today;
+            }).length;
+
+            const weekCount = allSubmissions.filter(s => {
+                const d = new Date(s.receivedAt || s.timestamp);
+                return d >= weekStart;
+            }).length;
+
+            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('weekCount').textContent = weekCount;
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) || '?';
+        }
+
+        function formatTime(dateStr) {
+            const d = new Date(dateStr);
+            const now = new Date();
+            const diff = now - d;
+            const mins = Math.floor(diff / 60000);
+            const hrs = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return `${mins}m ago`;
+            if (hrs < 24) return `${hrs}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function filterSubmissions() {
+            renderSubmissions();
+        }
+
+        function renderSubmissions() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sort = document.getElementById('sortSelect').value;
+            const grid = document.getElementById('submissionsGrid');
+
+            let filtered = allSubmissions.filter(s => {
+                if (!query) return true;
+                return (s.name && s.name.toLowerCase().includes(query)) ||
+                       (s.email && s.email.toLowerCase().includes(query)) ||
+                       (s.subject && s.subject.toLowerCase().includes(query)) ||
+                       (s.message && s.message.toLowerCase().includes(query));
+            });
+
+            filtered.sort((a, b) => {
+                const da = new Date(a.receivedAt || a.timestamp);
+                const db = new Date(b.receivedAt || b.timestamp);
+                return sort === 'newest' ? db - da : da - db;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>${allSubmissions.length === 0 ? 'No submissions yet' : 'No matches found'}</h3>
+                        <p>${allSubmissions.length === 0 ? 'Messages from the contact form will appear here.' : 'Try a different search term.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(s => {
+                const initials = getInitials(s.name);
+                const time = formatTime(s.receivedAt || s.timestamp);
+                const msgPreview = (s.message || '').substring(0, 120) + ((s.message || '').length > 120 ? '...' : '');
+                const id = s.id || s.receivedAt;
+
+                return `
+                    <div class="submission-card">
+                        <div class="card-header">
+                            <div class="card-avatar">${initials}</div>
+                            <span class="card-time">${time}</span>
+                        </div>
+                        <div class="card-body">
+                            <h4>${s.name}</h4>
+                            <div class="subject">${s.subject || 'No subject'}</div>
+                            <div class="message">${msgPreview}</div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-tag email"><i class="fas fa-envelope"></i> ${s.email}</span>
+                            ${s.phone ? `<span class="card-tag phone"><i class="fas fa-phone"></i> ${s.phone}</span>` : ''}
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn view" onclick="viewSubmission('${id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="card-action-btn delete" onclick="deleteSubmission('${id}', '${s.name}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewSubmission(id) {
+            const s = allSubmissions.find(x => (x.id || x.receivedAt) === id);
+            if (!s) return;
+
+            document.getElementById('modalAvatar').textContent = getInitials(s.name);
+            document.getElementById('modalName').textContent = s.name;
+            document.getElementById('modalTime').textContent = `Received ${formatTime(s.receivedAt || s.timestamp)}`;
+            document.getElementById('modalEmail').textContent = s.email;
+            document.getElementById('modalPhone').textContent = s.phone || 'Not provided';
+            document.getElementById('modalSubject').textContent = s.subject || 'No subject';
+            document.getElementById('modalMessage').textContent = s.message || 'No message';
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        async function deleteSubmission(id, name) {
+            if (!confirm(`Delete message from ${name}?`)) return;
+
+            try {
+                const res = await fetch(`/submissions?id=${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+                if (res.ok) {
+                    showToast(`Deleted message from ${name}`, 'success');
+                    allSubmissions = allSubmissions.filter(s => (s.id || s.receivedAt) !== id);
+                    updateStats();
+                    renderSubmissions();
+                } else {
+                    throw new Error('Failed to delete');
+                }
+            } catch (err) {
+                showToast('Failed to delete submission', 'error');
+            }
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toast.className = `toast show ${type}`;
+            toastMsg.textContent = msg;
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        async function refreshData() {
+            const btn = document.querySelector('.nav-btn.primary i');
+            btn.classList.add('fa-spin');
+            await fetchSubmissions();
+            setTimeout(() => btn.classList.remove('fa-spin'), 500);
+        }
+
+        // Auto refresh every 30 seconds (only if authenticated)
+        if (authToken) {
+            fetchSubmissions();
+            setInterval(fetchSubmissions, 30000);
+        }
+    </script>
+
+</body>
+</html>

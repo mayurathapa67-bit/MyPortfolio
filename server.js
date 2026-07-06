@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const PORT = 3000;
 const MIME = {
@@ -60,6 +61,35 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
+        return;
+    }
+
+    // POST /api/login - Admin authentication
+    if (req.method === 'POST' && pathname === '/api/login') {
+        try {
+            const { username, password } = await parseBody(req);
+            const adminUser = process.env.ADMIN_USERNAME || 'admin';
+            const adminPass = process.env.ADMIN_PASSWORD;
+
+            if (!adminPass) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Server configuration error' }));
+                return;
+            }
+
+            if (username !== adminUser || password !== adminPass) {
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid credentials' }));
+                return;
+            }
+
+            const token = Buffer.from(`${username}:${adminPass}`).toString('base64');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, token }));
+        } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        }
         return;
     }
 
