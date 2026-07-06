@@ -2,22 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 const SUBMISSIONS_DIR = path.join(__dirname, '..', 'submissions');
-if (!fs.existsSync(SUBMISSIONS_DIR)) {
-    fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
-}
-
-let kv;
 try {
-    kv = require('@vercel/kv').kv;
-} catch {
-    kv = null;
-}
-
-function parseAll(raw) {
-    return (raw || []).map(item => {
-        try { return JSON.parse(item); }
-        catch { return null; }
-    }).filter(Boolean);
+    if (!fs.existsSync(SUBMISSIONS_DIR)) {
+        fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+    }
+} catch (e) {
+    // ignore on Vercel if filesystem is not writable
 }
 
 module.exports = async function handler(req, res) {
@@ -35,17 +25,14 @@ module.exports = async function handler(req, res) {
     if (req.method === 'DELETE') {
         if (!id) return res.status(400).json({ error: 'Missing id' });
         try {
-            if (kv) {
-                const submissions = parseAll(await kv.lrange('submissions', 0, -1));
-                const index = submissions.findIndex(s => s.id === id);
-                if (index === -1) return res.status(404).json({ error: 'Submission not found' });
-                await kv.lset('submissions', index, '__DEL__');
-                await kv.lrem('submissions', 1, '__DEL__');
-            } else {
-                const filePath = path.join(SUBMISSIONS_DIR, id + '.json');
-                if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Submission not found' });
-                fs.unlinkSync(filePath);
-            }
+            const files = fs.readdirSync(SUBMISSIONS_DIR).filter(f => f.endsWith('.json')).sort().reverse();
+            const submissions = files.map(f => {
+                const content = fs.readFileSync(path.join(SUBMISSIONS_DIR, f), 'utf8');
+                return JSON.parse(content);
+            });
+            const index = submissions.findIndex(s => s.id === id);
+            if (index === -1) return res.status(404).json({ error: 'Submission not found' });
+            fs.unlinkSync(path.join(SUBMISSIONS_DIR, files[index]));
             return res.status(200).json({ success: true });
         } catch (err) {
             console.error('Delete error:', err);
@@ -55,10 +42,8 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
-            let submissions;
-            if (kv) {
-                submissions = parseAll(await kv.lrange('submissions', 0, -1));
-            } else {
+            let submissions = [];
+            if (fs.existsSync(SUBMISSIONS_DIR)) {
                 const files = fs.readdirSync(SUBMISSIONS_DIR).filter(f => f.endsWith('.json')).sort().reverse();
                 submissions = files.map(f => {
                     const content = fs.readFileSync(path.join(SUBMISSIONS_DIR, f), 'utf8');
