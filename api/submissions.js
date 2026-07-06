@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const SUBMISSIONS_DIR = path.join(__dirname, '..', 'submissions');
+if (!fs.existsSync(SUBMISSIONS_DIR)) {
+    fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+}
 
 let kv;
 try {
