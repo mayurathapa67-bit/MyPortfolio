@@ -93,8 +93,8 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // POST /submit - Save form submission as JSON file
-    if (req.method === 'POST' && pathname === '/submit') {
+    // POST /submit or /submissions - Save form submission as JSON file
+    if (req.method === 'POST' && (pathname === '/submit' || pathname === '/submissions')) {
         try {
             const data = await parseBody(req);
             if (!data.name || !data.email || !data.subject || !data.message) {

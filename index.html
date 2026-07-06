@@ -1413,7 +1413,7 @@
             };
 
             try {
-                const res = await fetch('/submit', {
+                const res = await fetch('/submissions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)

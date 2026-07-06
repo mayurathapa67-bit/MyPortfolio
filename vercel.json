@@ -11,7 +11,7 @@
   },
 
   "rewrites": [
-    { "source": "/submit", "destination": "/api/submit" },
+    { "source": "/submit", "destination": "/api/submissions" },
     { "source": "/submissions", "destination": "/api/submissions" },
     { "source": "/dashboard", "destination": "/dashboard.html" }
   ]
