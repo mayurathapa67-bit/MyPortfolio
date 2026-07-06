@@ -1,0 +1,16 @@
+{
+  "name": "mayura-thapa-portfolio",
+  "version": "1.0.0",
+  "description": "Personal portfolio with contact form and dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1"
+  },
+  "keywords": ["portfolio", "contact-form", "dashboard"],
+  "author": "Mayura Thapa",
+  "license": "MIT"
+}

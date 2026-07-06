@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": null,
+  "devCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/submit", "destination": "/api/submit" },
+    { "source": "/submissions", "destination": "/api/submissions" }
+  ]
+}
