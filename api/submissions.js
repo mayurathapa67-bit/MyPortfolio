@@ -2,13 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const SUBMISSIONS_DIR = path.join(__dirname, '..', 'submissions');
-try {
-    if (!fs.existsSync(SUBMISSIONS_DIR)) {
-        fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
-    }
-} catch (e) {
-    // ignore on Vercel if filesystem is not writable
-}
 
 module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,45 +15,36 @@ module.exports = async function handler(req, res) {
 
     const { id } = req.query;
 
-    if (req.method === 'DELETE') {
-        if (!id) return res.status(400).json({ error: 'Missing id' });
-        try {
+    try {
+        if (!fs.existsSync(SUBMISSIONS_DIR)) {
+            fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+        }
+
+        if (req.method === 'DELETE') {
+            if (!id) return res.status(400).json({ error: 'Missing id' });
+            const filePath = path.join(SUBMISSIONS_DIR, id + '.json');
+            if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Submission not found' });
+            fs.unlinkSync(filePath);
+            return res.status(200).json({ success: true });
+        }
+
+        if (req.method === 'GET') {
             const files = fs.readdirSync(SUBMISSIONS_DIR).filter(f => f.endsWith('.json')).sort().reverse();
             const submissions = files.map(f => {
                 const content = fs.readFileSync(path.join(SUBMISSIONS_DIR, f), 'utf8');
                 return JSON.parse(content);
             });
-            const index = submissions.findIndex(s => s.id === id);
-            if (index === -1) return res.status(404).json({ error: 'Submission not found' });
-            fs.unlinkSync(path.join(SUBMISSIONS_DIR, files[index]));
-            return res.status(200).json({ success: true });
-        } catch (err) {
-            console.error('Delete error:', err);
-            return res.status(500).json({ error: 'Internal server error' });
-        }
-    }
-
-    if (req.method === 'GET') {
-        try {
-            let submissions = [];
-            if (fs.existsSync(SUBMISSIONS_DIR)) {
-                const files = fs.readdirSync(SUBMISSIONS_DIR).filter(f => f.endsWith('.json')).sort().reverse();
-                submissions = files.map(f => {
-                    const content = fs.readFileSync(path.join(SUBMISSIONS_DIR, f), 'utf8');
-                    return JSON.parse(content);
-                });
-            }
             if (id) {
                 const submission = submissions.find(s => s.id === id);
                 if (!submission) return res.status(404).json({ error: 'Submission not found' });
                 return res.status(200).json(submission);
             }
             return res.status(200).json(submissions);
-        } catch (err) {
-            console.error('List error:', err);
-            return res.status(500).json({ error: 'Internal server error' });
         }
-    }
 
-    return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
+    } catch (err) {
+        console.error('API error:', err);
+        return res.status(500).json({ error: err.message || 'Internal server error' });
+    }
 };
